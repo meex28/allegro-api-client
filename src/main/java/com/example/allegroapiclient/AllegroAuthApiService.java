@@ -18,8 +18,8 @@ public class AllegroAuthApiService {
     // Endpoints for Allegro API
     private final String baseAllegroUrl = "allegro.pl";
     private final String baseAllegroSandboxUrl = "allegro.pl.allegrosandbox.pl";
-    private final String generateAccessTokenUrl = "/auth/oauth/token";
-    private final String signInToAuthorizeURL = "/auth/oauth/authorize";
+    private final String generateAccessTokenUrl = "auth/oauth/token";
+    private final String signInToAuthorizeURL = "auth/oauth/authorize";
 
     //TODO: change redirectUri
     private final String redirectUri = "http://localhost:8080/api/apps/code/%s";
@@ -37,7 +37,7 @@ public class AllegroAuthApiService {
 
     public String generateTokenForApplication(String clientId, String clientSecret, boolean isSandbox){
         String url = getBasicUriComponentsBuilder(isSandbox)
-                .path(generateAccessTokenUrl)
+                .pathSegment(generateAccessTokenUrl)
                 .build().toUriString();
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
@@ -60,11 +60,10 @@ public class AllegroAuthApiService {
     // return URL for generating access code for "token for user"
     public String generateAccessCodeUrl(String clientId, String endpoint, boolean isSandbox){
         return getBasicUriComponentsBuilder(isSandbox)
-                .path(signInToAuthorizeURL)
-                .path(endpoint)
+                .pathSegment(signInToAuthorizeURL)
                 .queryParam("response_type", "code")
                 .queryParam("client_id", clientId)
-                .queryParam("redirect_uri", redirectUri)
+                .queryParam("redirect_uri", String.format(redirectUri, endpoint))
                 .build().toUriString();
     }
 
@@ -81,7 +80,7 @@ public class AllegroAuthApiService {
 
         String responseBody = webClient.post()
                 .uri(uriBuilder -> uriBuilder
-                        .path(uri)
+                        .pathSegment(uri)
                         .queryParam("grant_type", "authorization_code")
                         .queryParam("code", code)
                         .queryParam("redirect_uri", String.format(redirectUri, endpoint))

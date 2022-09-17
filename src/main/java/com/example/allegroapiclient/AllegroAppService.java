@@ -20,6 +20,31 @@ public class AllegroAppService {
         this.authApiService = authApiService;
     }
 
+    public void generateTokenForApplication(String clientId) throws IllegalArgumentException{
+        Optional<AllegroApp> allegroAppOptional = repository.findById(clientId);
+        if(allegroAppOptional.isEmpty())
+            throw new IllegalArgumentException("Invalid client id");
+
+        AllegroApp app = allegroAppOptional.get();
+
+        String token = authApiService.generateTokenForApplication(
+                app.getClientId(),
+                app.getClientSecret(),
+                app.isSandbox());
+
+        app.setTokenForApplication(token);
+        repository.save(app);
+    }
+
+    public String getAccessCodeUrl(String clientId) throws IllegalArgumentException{
+        Optional<AllegroApp> allegroAppOptional = repository.findById(clientId);
+        if(allegroAppOptional.isEmpty())
+            throw new IllegalArgumentException("Invalid client id");
+
+        AllegroApp app = allegroAppOptional.get();
+        return authApiService.generateAccessCodeUrl(app.getClientId(), app.getEndpoint(), app.isSandbox());
+    }
+
     public void addTokenForUserToApp(String code, String endpoint){
         Optional<AllegroApp> allegroAppOptional = repository.findByEndpoint(endpoint);
 

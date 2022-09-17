@@ -15,8 +15,7 @@ public class AllegroAppAccessCodeController {
 
     @GetMapping("/{endpoint}")
     public void passCode(@RequestParam String code, @PathVariable String endpoint){
-        System.out.println(endpoint);
-        System.out.println(code);
+        service.addTokenForUserToApp(code, endpoint);
     }
 
 }
