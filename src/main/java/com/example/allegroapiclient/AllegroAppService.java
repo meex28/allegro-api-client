@@ -65,4 +65,9 @@ public class AllegroAppService {
         allegroApp.setRefreshToken(tokenData.getString("refresh_token"));
         repository.save(allegroApp);
     }
+
+    public String generateEndpoint(String username){
+        int number = repository.countByUsername(username)+1;
+        return String.format("%s-%d", username, number);
+    }
 }

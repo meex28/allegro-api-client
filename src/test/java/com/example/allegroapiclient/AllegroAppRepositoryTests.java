@@ -76,6 +76,29 @@ public class AllegroAppRepositoryTests {
         assert foundApp.get().getEndpoint().equals(endpoint);
     }
 
+    @Test
+    void countByUsername(){
+        AllegroApp app1 = new AllegroApp();
+        app1.setClientId("1");
+        app1.setUsername("user1");
+        app1.setNew(true);
+        AllegroApp app2 = new AllegroApp();
+        app2.setClientId("2");
+        app2.setUsername("user1");
+        app2.setNew(true);
+        AllegroApp app3 = new AllegroApp();
+        app3.setClientId("3");
+        app3.setUsername("user2");
+        app3.setNew(true);
+        repository.save(app1);
+        repository.save(app2);
+        repository.save(app3);
+
+        assert repository.countByUsername("user1") == 2;
+        assert repository.countByUsername("user2") == 1;
+        assert repository.countByUsername("user") == 0;
+    }
+
     public void entityNotPresent(String id){
         Optional<AllegroApp> findByIdApp = repository.findById(id);
         assert findByIdApp.isEmpty();

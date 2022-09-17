@@ -23,4 +23,7 @@ public interface AllegroAppRepository extends CrudRepository<AllegroApp, String>
 
     @Query("SELECT * FROM ALLEGRO_APP WHERE ENDPOINT = :endpoint")
     Optional<AllegroApp> findByEndpoint(@Param(("endpoint")) String endpoint);
+
+    @Query("SELECT COUNT(CLIENT_ID) FROM ALLEGRO_APP WHERE USERNAME = :username")
+    int countByUsername(@Param("username") String username);
 }
