@@ -1,5 +1,6 @@
 package com.example.allegroapiclient;
 
+import org.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -9,8 +10,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class AllegroAuthApiService {
@@ -22,8 +21,8 @@ public class AllegroAuthApiService {
     private final String generateAccessTokenUrl = "/auth/oauth/token";
     private final String signInToAuthorizeURL = "/auth/oauth/authorize";
 
-    //TODO: make redirect uri in properties
-    private final String redirectUri = "http://localhost:8080/";
+    //TODO: change redirectUri
+    private final String redirectUri = "http://localhost:8080/api/apps/code/%s";
 
     public AllegroAuthApiService() {
         this.webClient = WebClient.builder().build();
@@ -36,7 +35,7 @@ public class AllegroAuthApiService {
                 .host(host);
     }
 
-    public String generateAccessCode(String clientId, String clientSecret, boolean isSandbox){
+    public String generateTokenForApplication(String clientId, String clientSecret, boolean isSandbox){
         String url = getBasicUriComponentsBuilder(isSandbox)
                 .path(generateAccessTokenUrl)
                 .build().toUriString();
@@ -44,13 +43,54 @@ public class AllegroAuthApiService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.put("grant_type", Collections.singletonList("client_credentials"));
 
-        WebClient.RequestHeadersSpec<?> responseSpec = webClient.post()
+        String responseBody = webClient.post()
                 .uri(url)
                 .headers(headers -> headers.setBasicAuth(clientId, clientSecret))
                 .headers(headers -> headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED))
-                .body(BodyInserters.fromFormData(body));
-
-        return responseSpec.retrieve().bodyToMono(String.class)
+                .body(BodyInserters.fromFormData(body))
+                .retrieve()
+                .bodyToMono(String.class)
                 .block();
+
+
+        JSONObject json = new JSONObject(responseBody);
+        return json.getString("access_token");
+    }
+
+    // return URL for generating access code for "token for user"
+    public String generateAccessCodeUrl(String clientId, String endpoint, boolean isSandbox){
+        return getBasicUriComponentsBuilder(isSandbox)
+                .path(signInToAuthorizeURL)
+                .path(endpoint)
+                .queryParam("response_type", "code")
+                .queryParam("client_id", clientId)
+                .queryParam("redirect_uri", redirectUri)
+                .build().toUriString();
+    }
+
+    // generate Token For User
+    // return JSONObject with among others access token, refresh token, expire time, scope
+    public JSONObject generateTokenForUser(String clientId,
+                                     String clientSecret,
+                                     String code,
+                                     String endpoint,
+                                     boolean isSandbox){
+        String uri = getBasicUriComponentsBuilder(isSandbox)
+                .path(generateAccessTokenUrl)
+                .toUriString();
+
+        String responseBody = webClient.post()
+                .uri(uriBuilder -> uriBuilder
+                        .path(uri)
+                        .queryParam("grant_type", "authorization_code")
+                        .queryParam("code", code)
+                        .queryParam("redirect_uri", String.format(redirectUri, endpoint))
+                        .build())
+                .headers(headers -> headers.setBasicAuth(clientId, clientSecret))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        return new JSONObject(responseBody);
     }
 }
