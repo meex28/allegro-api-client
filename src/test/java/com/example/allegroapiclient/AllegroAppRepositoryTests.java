@@ -62,6 +62,20 @@ public class AllegroAppRepositoryTests {
         entityNotPresent(id);
     }
 
+    @Test
+    public void findByEndpoint(){
+        String id = "endpoint-id";
+        AllegroApp app = new AllegroApp(id, "secret", false, "username");
+        String endpoint = "test-endpoint";
+        app.setEndpoint(endpoint);
+        app.setNew(true);
+        repository.save(app);
+        entityPresent(id);
+        Optional<AllegroApp> foundApp = repository.findByEndpoint(endpoint);
+        assert foundApp.isPresent();
+        assert foundApp.get().getEndpoint().equals(endpoint);
+    }
+
     public void entityNotPresent(String id){
         Optional<AllegroApp> findByIdApp = repository.findById(id);
         assert findByIdApp.isEmpty();

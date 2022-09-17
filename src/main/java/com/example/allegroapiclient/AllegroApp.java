@@ -26,6 +26,8 @@ public class AllegroApp implements Persistable<String> {
 
     private String refreshToken;
 
+    private String endpoint;
+
     @Transient
     private boolean isNew;
 

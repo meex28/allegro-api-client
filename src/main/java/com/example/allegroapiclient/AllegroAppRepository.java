@@ -1,6 +1,8 @@
 package com.example.allegroapiclient;
 
+import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -18,4 +20,7 @@ public interface AllegroAppRepository extends CrudRepository<AllegroApp, String>
 
     @Override
     void deleteAll();
+
+    @Query("SELECT * FROM ALLEGRO_APP WHERE ENDPOINT = :endpoint")
+    Optional<AllegroApp> findByEndpoint(@Param(("endpoint")) String endpoint);
 }
