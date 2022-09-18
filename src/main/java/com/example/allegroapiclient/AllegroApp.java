@@ -39,6 +39,14 @@ public class AllegroApp implements Persistable<String> {
         this.username = username;
     }
 
+    public AllegroApp(String clientId, String clientSecret, boolean isSandbox, String username, String endpoint) {
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.isSandbox = isSandbox;
+        this.username = username;
+        this.endpoint = endpoint;
+    }
+
     @Override
     public String getId() {
         return clientId;

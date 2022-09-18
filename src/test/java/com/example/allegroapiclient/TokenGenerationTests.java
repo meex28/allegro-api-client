@@ -35,7 +35,7 @@ public class TokenGenerationTests {
     }
 
     @Test
-    void generateTokenForApplication(){
+    void generateTokenForApplication() throws InvalidClientIdException {
         addNewApp();
         allegroAppService.generateTokenForApplication(TestTokens.clientId);
     }

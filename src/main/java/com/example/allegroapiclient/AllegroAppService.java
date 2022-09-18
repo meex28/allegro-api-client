@@ -20,10 +20,20 @@ public class AllegroAppService {
         this.authApiService = authApiService;
     }
 
-    public void generateTokenForApplication(String clientId) throws IllegalArgumentException{
+    public void addNewApp(String clientId, String clientSecret, boolean isSandbox, String username, String endpoint) throws InvalidClientIdException {
+        // check if clientId is unique
+        if(repository.findById(clientId).isPresent())
+            throw new InvalidClientIdException("There is already app with given ClientID");
+
+        AllegroApp app = new AllegroApp(clientId, clientSecret, isSandbox, username, endpoint);
+        app.setNew(true);
+        repository.save(app);
+    }
+
+    public void generateTokenForApplication(String clientId) throws InvalidClientIdException{
         Optional<AllegroApp> allegroAppOptional = repository.findById(clientId);
         if(allegroAppOptional.isEmpty())
-            throw new IllegalArgumentException("Invalid client id");
+            throw new InvalidClientIdException("Invalid client id");
 
         AllegroApp app = allegroAppOptional.get();
 
@@ -36,10 +46,10 @@ public class AllegroAppService {
         repository.save(app);
     }
 
-    public String getAccessCodeUrl(String clientId) throws IllegalArgumentException{
+    public String getAccessCodeUrl(String clientId) throws InvalidClientIdException{
         Optional<AllegroApp> allegroAppOptional = repository.findById(clientId);
         if(allegroAppOptional.isEmpty())
-            throw new IllegalArgumentException("Invalid client id");
+            throw new InvalidClientIdException("Invalid client id");
 
         AllegroApp app = allegroAppOptional.get();
         return authApiService.generateAccessCodeUrl(app.getClientId(), app.getEndpoint(), app.isSandbox());
