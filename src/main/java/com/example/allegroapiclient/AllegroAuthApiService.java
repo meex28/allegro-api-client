@@ -79,8 +79,7 @@ public class AllegroAuthApiService {
                 .toUriString();
 
         String responseBody = webClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .pathSegment(uri)
+                .uri(uri, uriBuilder -> uriBuilder
                         .queryParam("grant_type", "authorization_code")
                         .queryParam("code", code)
                         .queryParam("redirect_uri", String.format(redirectUri, endpoint))
