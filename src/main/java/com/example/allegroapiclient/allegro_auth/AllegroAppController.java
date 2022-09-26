@@ -1,5 +1,7 @@
-package com.example.allegroapiclient;
+package com.example.allegroapiclient.allegro_auth;
 
+import com.example.allegroapiclient.dto.AllegroAppDTO;
+import com.example.allegroapiclient.exceptions.InvalidClientIdException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

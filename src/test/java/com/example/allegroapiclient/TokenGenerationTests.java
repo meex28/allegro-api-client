@@ -1,10 +1,15 @@
 package com.example.allegroapiclient;
 
+import com.example.allegroapiclient.allegro_auth.AllegroAppAccessCodeController;
+import com.example.allegroapiclient.allegro_auth.AllegroAppRepository;
+import com.example.allegroapiclient.allegro_auth.AllegroAppService;
+import com.example.allegroapiclient.allegro_auth.AllegroAuthApiService;
+import com.example.allegroapiclient.entities.AllegroApp;
+import com.example.allegroapiclient.exceptions.InvalidClientIdException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)

@@ -1,5 +1,7 @@
-package com.example.allegroapiclient;
+package com.example.allegroapiclient.allegro_auth;
 
+import com.example.allegroapiclient.entities.AllegroApp;
+import com.example.allegroapiclient.exceptions.InvalidClientIdException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

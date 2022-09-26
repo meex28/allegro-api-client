@@ -1,4 +1,4 @@
-package com.example.allegroapiclient;
+package com.example.allegroapiclient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

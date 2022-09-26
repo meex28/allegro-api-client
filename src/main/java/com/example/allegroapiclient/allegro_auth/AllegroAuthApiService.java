@@ -1,4 +1,4 @@
-package com.example.allegroapiclient;
+package com.example.allegroapiclient.allegro_auth;
 
 import org.json.JSONObject;
 import org.springframework.http.MediaType;

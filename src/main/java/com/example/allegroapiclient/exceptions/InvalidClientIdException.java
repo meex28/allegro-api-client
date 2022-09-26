@@ -1,4 +1,4 @@
-package com.example.allegroapiclient;
+package com.example.allegroapiclient.exceptions;
 
 public class InvalidClientIdException extends Exception{
     public InvalidClientIdException(String msg) {

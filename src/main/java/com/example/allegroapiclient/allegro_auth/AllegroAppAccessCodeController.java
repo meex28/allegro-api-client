@@ -1,4 +1,4 @@
-package com.example.allegroapiclient;
+package com.example.allegroapiclient.allegro_auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
