@@ -36,7 +36,8 @@ public class AllegroAppController {
                     app.getClientSecret(),
                     app.isSandbox(),
                     app.getUsername(),
-                    app.getEndpoint());
+                    app.getEndpoint(),
+                    app.getAuthFlowType());
 
             JSONObject responseBody = new JSONObject()
                     .put("id", app.getClientId());
@@ -54,7 +55,7 @@ public class AllegroAppController {
         String url;
         try{
             service.generateTokenForApplication(clientId);
-            url = service.getAccessCodeUrl(clientId);
+            url = service.getAuthURL(clientId);
         }catch (InvalidClientIdException e){
             JSONObject responseBody = new JSONObject()
                     .put("error", e.getMessage());

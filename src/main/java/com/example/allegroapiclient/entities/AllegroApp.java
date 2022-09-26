@@ -26,6 +26,8 @@ public class AllegroApp implements Persistable<String> {
 
     private String endpoint;
 
+    private FlowTypes authFlowType;
+
     @Transient
     private boolean isNew;
 
@@ -39,12 +41,22 @@ public class AllegroApp implements Persistable<String> {
         this.username = username;
     }
 
-    public AllegroApp(String clientId, String clientSecret, boolean isSandbox, String username, String endpoint) {
+    public AllegroApp(String clientId, String clientSecret, boolean isSandbox, String username, FlowTypes authFlowType) {
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.isSandbox = isSandbox;
+        this.username = username;
+        this.authFlowType = authFlowType;
+    }
+
+    public AllegroApp(String clientId, String clientSecret, boolean isSandbox, String username, String endpoint,
+                      FlowTypes authFlowType) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.isSandbox = isSandbox;
         this.username = username;
         this.endpoint = endpoint;
+        this.authFlowType = authFlowType;
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.example.allegroapiclient.allegro_auth.AllegroAppService;
 import com.example.allegroapiclient.allegro_auth.AllegroAuthApiService;
 import com.example.allegroapiclient.entities.AllegroApp;
 import com.example.allegroapiclient.exceptions.InvalidClientIdException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -58,5 +59,15 @@ public class TokenGenerationTests {
         String clientSecret = "hMtRrbiQ4YchZ6MJNoFaRQwrm7PGO7R1LBFQj9K9h4zKAgeGJcmJguhpvC2d5Nqh";
         String token = authApiService.generateTokenForApplication(clientId, clientSecret, true);
         System.out.println(token);
+    }
+
+    @Test
+    void tokenForUserDeviceFlowPreparing(){
+        String clientId = "636ca94c10f44327b36b7f2d55635b72";
+        String clientSecret = "YBJd3XO2nnUwfvFdixdLddz4UCpRhOya4TiOcDXHYjEFNYUwZJLvzM39vWOZPIt4";
+        JSONObject result = authApiService.prepareGenerationTokenForUserWithDeviceFlow(clientId,
+                clientSecret,
+                true);
+        System.out.println(result);
     }
 }

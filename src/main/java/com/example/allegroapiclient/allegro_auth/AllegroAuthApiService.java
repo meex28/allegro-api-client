@@ -20,6 +20,7 @@ public class AllegroAuthApiService {
     private final String baseAllegroSandboxUrl = "allegro.pl.allegrosandbox.pl";
     private final String generateAccessTokenUrl = "auth/oauth/token";
     private final String signInToAuthorizeURL = "auth/oauth/authorize";
+    private final String deviceFlowAuthorizationURL = "auth/oauth/device";
 
     //TODO: change redirectUri
     private final String redirectUri = "http://localhost:8080/api/apps/code/%s";
@@ -57,7 +58,7 @@ public class AllegroAuthApiService {
         return json.getString("access_token");
     }
 
-    // return URL for generating access code for "token for user"
+    // return URL to generate authorization code used in generation token for user using Authorization Code flow
     public String generateAccessCodeUrl(String clientId, String endpoint, boolean isSandbox){
         return getBasicUriComponentsBuilder(isSandbox)
                 .pathSegment(signInToAuthorizeURL)
@@ -67,13 +68,13 @@ public class AllegroAuthApiService {
                 .build().toUriString();
     }
 
-    // generate Token For User
+    // generate Token For User using Authorization Code flow
     // return JSONObject with among others access token, refresh token, expire time, scope
-    public JSONObject generateTokenForUser(String clientId,
-                                     String clientSecret,
-                                     String code,
-                                     String endpoint,
-                                     boolean isSandbox){
+    public JSONObject generateTokenForUserWithAuthorizationCode(String clientId,
+                                                                String clientSecret,
+                                                                String code,
+                                                                String endpoint,
+                                                                boolean isSandbox){
         String uri = getBasicUriComponentsBuilder(isSandbox)
                 .path(generateAccessTokenUrl)
                 .toUriString();
@@ -83,6 +84,48 @@ public class AllegroAuthApiService {
                         .queryParam("grant_type", "authorization_code")
                         .queryParam("code", code)
                         .queryParam("redirect_uri", String.format(redirectUri, endpoint))
+                        .build())
+                .headers(headers -> headers.setBasicAuth(clientId, clientSecret))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        return new JSONObject(responseBody);
+    }
+
+    // initialize required codes to generate Token for User using Device flow
+    public JSONObject prepareGenerationTokenForUserWithDeviceFlow(String clientId,
+                                                                  String clientSecret,
+                                                                  boolean isSandbox){
+        String url = getBasicUriComponentsBuilder(isSandbox)
+                .pathSegment(deviceFlowAuthorizationURL)
+                .build().toUriString();
+
+        String responseBody = webClient.post()
+                .uri(url, uriBuilder -> uriBuilder
+                        .queryParam("client_id", clientId)
+                        .build())
+                .headers(headers -> headers.setBasicAuth(clientId, clientSecret))
+                .headers(headers -> headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        return new JSONObject(responseBody);
+    }
+
+    public JSONObject requestForTokenForUserDeviceFlow(String clientId,
+                                                       String clientSecret,
+                                                       boolean isSandbox,
+                                                       String deviceCode){
+        String url = getBasicUriComponentsBuilder(isSandbox)
+                .pathSegment(generateAccessTokenUrl)
+                .build().toUriString();
+
+        String responseBody = webClient.post()
+                .uri(url, uriBuilder -> uriBuilder
+                        .queryParam("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
+                        .queryParam("device_code", deviceCode)
                         .build())
                 .headers(headers -> headers.setBasicAuth(clientId, clientSecret))
                 .retrieve()

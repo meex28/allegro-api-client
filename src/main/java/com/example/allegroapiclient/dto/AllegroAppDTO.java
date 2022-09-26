@@ -1,5 +1,6 @@
 package com.example.allegroapiclient.dto;
 
+import com.example.allegroapiclient.entities.FlowTypes;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -15,4 +16,6 @@ public class AllegroAppDTO {
     private String username;
 
     private String endpoint;
+
+    private FlowTypes authFlowType;
 }
