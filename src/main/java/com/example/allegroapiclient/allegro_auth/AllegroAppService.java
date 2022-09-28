@@ -1,5 +1,8 @@
 package com.example.allegroapiclient.allegro_auth;
 
+import com.example.allegroapiclient.allegro_auth.token_generation.ApplicationTokenGeneration;
+import com.example.allegroapiclient.allegro_auth.token_generation.AuthorizationCodeFlowTokenGeneration;
+import com.example.allegroapiclient.allegro_auth.token_generation.DeviceFlowTokenGeneration;
 import com.example.allegroapiclient.entities.AllegroApp;
 import com.example.allegroapiclient.entities.FlowTypes;
 import com.example.allegroapiclient.exceptions.InvalidClientIdException;
@@ -7,23 +10,33 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class AllegroAppService {
+    // Beans
     private final AllegroAppRepository repository;
-    private AllegroAuthApiService authApiService;
+    private final AllegroAuthApiService authApiService;
+
     private final Logger logger = LoggerFactory.getLogger(AllegroAppService.class);
+    private final ApplicationTokenGeneration applicationTokenGeneration;
+    private final AuthorizationCodeFlowTokenGeneration authorizationCodeFlowTokenGeneration;
+    private final DeviceFlowTokenGeneration deviceFlowTokenGeneration;
+
 
     @Autowired
-    public AllegroAppService(AllegroAppRepository repository, AllegroAuthApiService authApiService) {
+    public AllegroAppService(AllegroAppRepository repository,
+                             AllegroAuthApiService authApiService,
+                             ApplicationTokenGeneration applicationTokenGeneration,
+                             AuthorizationCodeFlowTokenGeneration authorizationCodeFlowTokenGeneration,
+                             DeviceFlowTokenGeneration deviceFlowTokenGeneration) {
         this.repository = repository;
         this.authApiService = authApiService;
+        this.applicationTokenGeneration = applicationTokenGeneration;
+        this.authorizationCodeFlowTokenGeneration = authorizationCodeFlowTokenGeneration;
+        this.deviceFlowTokenGeneration = deviceFlowTokenGeneration;
     }
 
     public void addNewApp(String clientId,
@@ -46,15 +59,9 @@ public class AllegroAppService {
         Optional<AllegroApp> allegroAppOptional = repository.findById(clientId);
         if(allegroAppOptional.isEmpty())
             throw new InvalidClientIdException("Invalid client id");
-
         AllegroApp app = allegroAppOptional.get();
 
-        String token = authApiService.generateTokenForApplication(
-                app.getClientId(),
-                app.getClientSecret(),
-                app.isSandbox());
-
-        app.setTokenForApplication(token);
+        app = applicationTokenGeneration.generate(app);
         repository.save(app);
     }
 
@@ -72,6 +79,7 @@ public class AllegroAppService {
 
     // Methods to authorize with "Authorization Code flow"
     // generate unique endpoint for application, to catch access code
+    // used to generate Authorization Code flow Token
     public String generateEndpoint(String username){
         int number = repository.countByUsername(username)+1;
         return String.format("%s-%d", username, number);
@@ -79,66 +87,31 @@ public class AllegroAppService {
 
     // create URL to allow client to authorize app
     private String getAccessCodeUrl(AllegroApp app) throws InvalidClientIdException{
-        return authApiService.generateAccessCodeUrl(app.getClientId(), app.getEndpoint(), app.isSandbox());
+        return authorizationCodeFlowTokenGeneration.generateAuthURL(app);
     }
 
-    // generate Token for User using catch code
+    // generate Token for User using catch code and Authorization Code flow
     public void generateTokenForUserAuthCodeFlow(String code, String endpoint){
         Optional<AllegroApp> allegroAppOptional = repository.findByEndpoint(endpoint);
-
         if(allegroAppOptional.isEmpty()){
             logger.error(String.format("Invalid endpoint=%s to generate token.", endpoint));
             return;
         }
-
         AllegroApp allegroApp = allegroAppOptional.get();
 
-        JSONObject tokenData = authApiService.generateTokenForUserWithAuthorizationCode(allegroApp.getClientId(),
-                allegroApp.getClientSecret(),
-                code,
-                allegroApp.getEndpoint(),
-                allegroApp.isSandbox());
+        allegroApp = authorizationCodeFlowTokenGeneration.generateToken(allegroApp, code);
 
-        allegroApp.setTokenForUser(tokenData.getString("access_token"));
-        allegroApp.setRefreshToken(tokenData.getString("refresh_token"));
         repository.save(allegroApp);
     }
 
     // Methods to authorize with "Device flow"
     public String generateTokenForUserDeviceFlow(AllegroApp app){
-        JSONObject generationParams = authApiService.prepareGenerationTokenForUserWithDeviceFlow(
-                app.getClientId(), app.getClientSecret(), app.isSandbox());
+        JSONObject generationParams = deviceFlowTokenGeneration.initializeTokenGeneration(app);
 
-        CompletableFuture.runAsync(() -> makeRequestsForTokenDeviceFlow(app,
-                                                                        generationParams.getString("device_code"),
-                                                                        generationParams.getInt("interval")));
+        deviceFlowTokenGeneration.generate(app,
+                generationParams.getString("device_code"),
+                generationParams.getInt("interval"));
 
         return generationParams.getString("verification_uri_complete");
-    }
-
-    @Async
-    public void makeRequestsForTokenDeviceFlow(AllegroApp app, String deviceCode, int interval){
-        boolean isAuthPending = true;
-
-        while (isAuthPending){
-            logger.info("Generating token");
-            JSONObject response = authApiService.requestForTokenForUserDeviceFlow(app.getClientId(),
-                    app.getClientSecret(),
-                    app.isSandbox(),
-                    deviceCode);
-
-            if(!response.has("error")){
-                String tokenForUser = response.getString("access_token");
-                String refreshToken = response.getString("refresh_token");
-                app.setTokenForUser(tokenForUser);
-                app.setRefreshToken(refreshToken);
-                repository.save(app);
-                isAuthPending = false;
-            }else{
-                try{
-                    TimeUnit.SECONDS.sleep(interval);
-                }catch (InterruptedException ignored){}
-            }
-        }
     }
 }

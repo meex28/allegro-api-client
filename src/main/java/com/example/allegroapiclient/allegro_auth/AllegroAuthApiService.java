@@ -1,6 +1,10 @@
 package com.example.allegroapiclient.allegro_auth;
 
+import com.example.allegroapiclient.exceptions.DeviceFlowTokenPending;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -8,6 +12,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
@@ -25,6 +30,7 @@ public class AllegroAuthApiService {
     //TODO: change redirectUri
     private final String redirectUri = "http://localhost:8080/api/apps/code/%s";
 
+    @Autowired
     public AllegroAuthApiService() {
         this.webClient = WebClient.builder().build();
     }
@@ -117,7 +123,7 @@ public class AllegroAuthApiService {
     public JSONObject requestForTokenForUserDeviceFlow(String clientId,
                                                        String clientSecret,
                                                        boolean isSandbox,
-                                                       String deviceCode){
+                                                       String deviceCode) throws DeviceFlowTokenPending{
         String url = getBasicUriComponentsBuilder(isSandbox)
                 .pathSegment(generateAccessTokenUrl)
                 .build().toUriString();
@@ -129,6 +135,8 @@ public class AllegroAuthApiService {
                         .build())
                 .headers(headers -> headers.setBasicAuth(clientId, clientSecret))
                 .retrieve()
+                .onStatus(HttpStatus.BAD_REQUEST::equals,
+                        response -> response.bodyToMono(String.class).map(DeviceFlowTokenPending::new))
                 .bodyToMono(String.class)
                 .block();
 
