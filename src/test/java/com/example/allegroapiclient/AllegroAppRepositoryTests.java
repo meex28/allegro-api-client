@@ -1,7 +1,7 @@
 package com.example.allegroapiclient;
 
-import com.example.allegroapiclient.allegro_auth.AllegroAppRepository;
-import com.example.allegroapiclient.entities.AllegroApp;
+import com.example.allegroapiclient.auth.allegro_auth.AllegroAppRepository;
+import com.example.allegroapiclient.auth.entities.AllegroApp;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package com.example.allegroapiclient.utils;
+package com.example.allegroapiclient.auth.utils;
 
 import org.json.JSONObject;
 

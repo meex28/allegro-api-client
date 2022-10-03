@@ -1,11 +1,10 @@
-package com.example.allegroapiclient.allegro_auth;
+package com.example.allegroapiclient.auth.allegro_auth;
 
-import com.example.allegroapiclient.entities.AllegroApp;
-import com.example.allegroapiclient.entities.FlowTypes;
-import com.example.allegroapiclient.exceptions.DeviceFlowTokenPending;
+import com.example.allegroapiclient.auth.entities.AllegroApp;
+import com.example.allegroapiclient.auth.entities.FlowTypes;
+import com.example.allegroapiclient.auth.exceptions.DeviceFlowTokenPending;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -13,9 +12,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 

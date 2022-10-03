@@ -1,4 +1,4 @@
-package com.example.allegroapiclient.dto;
+package com.example.allegroapiclient.auth.dto;
 
 public record Token(String token, boolean isSandbox, String hostUrl) {
     public String toStringJSON() {

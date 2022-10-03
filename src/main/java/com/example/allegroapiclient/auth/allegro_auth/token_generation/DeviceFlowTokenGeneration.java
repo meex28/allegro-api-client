@@ -1,9 +1,9 @@
-package com.example.allegroapiclient.allegro_auth.token_generation;
+package com.example.allegroapiclient.auth.allegro_auth.token_generation;
 
-import com.example.allegroapiclient.allegro_auth.AllegroAppRepository;
-import com.example.allegroapiclient.allegro_auth.AllegroAuthApiService;
-import com.example.allegroapiclient.entities.AllegroApp;
-import com.example.allegroapiclient.exceptions.DeviceFlowTokenPending;
+import com.example.allegroapiclient.auth.allegro_auth.AllegroAppRepository;
+import com.example.allegroapiclient.auth.allegro_auth.AllegroAuthApiService;
+import com.example.allegroapiclient.auth.entities.AllegroApp;
+import com.example.allegroapiclient.auth.exceptions.DeviceFlowTokenPending;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

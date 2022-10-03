@@ -1,6 +1,6 @@
-package com.example.allegroapiclient.dto;
+package com.example.allegroapiclient.auth.dto;
 
-import com.example.allegroapiclient.entities.FlowTypes;
+import com.example.allegroapiclient.auth.entities.FlowTypes;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 

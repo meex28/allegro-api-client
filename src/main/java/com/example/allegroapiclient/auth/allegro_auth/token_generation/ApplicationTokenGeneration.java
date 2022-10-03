@@ -1,8 +1,8 @@
-package com.example.allegroapiclient.allegro_auth.token_generation;
+package com.example.allegroapiclient.auth.allegro_auth.token_generation;
 
-import com.example.allegroapiclient.allegro_auth.AllegroAuthApiService;
-import com.example.allegroapiclient.entities.AllegroApp;
-import com.example.allegroapiclient.exceptions.InvalidClientIdException;
+import com.example.allegroapiclient.auth.allegro_auth.AllegroAuthApiService;
+import com.example.allegroapiclient.auth.entities.AllegroApp;
+import com.example.allegroapiclient.auth.exceptions.InvalidClientIdException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

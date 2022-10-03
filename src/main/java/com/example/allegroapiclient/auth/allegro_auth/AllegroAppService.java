@@ -1,13 +1,13 @@
-package com.example.allegroapiclient.allegro_auth;
+package com.example.allegroapiclient.auth.allegro_auth;
 
-import com.example.allegroapiclient.allegro_auth.token_generation.ApplicationTokenGeneration;
-import com.example.allegroapiclient.allegro_auth.token_generation.AuthorizationCodeFlowTokenGeneration;
-import com.example.allegroapiclient.allegro_auth.token_generation.DeviceFlowTokenGeneration;
-import com.example.allegroapiclient.dto.Token;
-import com.example.allegroapiclient.entities.AllegroApp;
-import com.example.allegroapiclient.entities.FlowTypes;
-import com.example.allegroapiclient.exceptions.InvalidClientIdException;
-import com.example.allegroapiclient.utils.JwtUtils;
+import com.example.allegroapiclient.auth.allegro_auth.token_generation.ApplicationTokenGeneration;
+import com.example.allegroapiclient.auth.allegro_auth.token_generation.AuthorizationCodeFlowTokenGeneration;
+import com.example.allegroapiclient.auth.allegro_auth.token_generation.DeviceFlowTokenGeneration;
+import com.example.allegroapiclient.auth.dto.Token;
+import com.example.allegroapiclient.auth.entities.AllegroApp;
+import com.example.allegroapiclient.auth.entities.FlowTypes;
+import com.example.allegroapiclient.auth.exceptions.InvalidClientIdException;
+import com.example.allegroapiclient.auth.utils.JwtUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

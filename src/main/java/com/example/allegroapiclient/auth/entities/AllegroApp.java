@@ -1,4 +1,4 @@
-package com.example.allegroapiclient.entities;
+package com.example.allegroapiclient.auth.entities;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

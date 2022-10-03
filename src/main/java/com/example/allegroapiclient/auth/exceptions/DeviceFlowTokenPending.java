@@ -1,4 +1,4 @@
-package com.example.allegroapiclient.exceptions;
+package com.example.allegroapiclient.auth.exceptions;
 
 import lombok.Getter;
 
