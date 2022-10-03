@@ -1,6 +1,7 @@
 package com.example.allegroapiclient.allegro_auth;
 
 import com.example.allegroapiclient.dto.AllegroAppDTO;
+import com.example.allegroapiclient.dto.Token;
 import com.example.allegroapiclient.exceptions.InvalidClientIdException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,20 @@ public class AllegroAppController {
     @Autowired
     public AllegroAppController(AllegroAppService service) {
         this.service = service;
+    }
+
+    @GetMapping(value = "/token", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<String> getToken(@RequestParam String clientId){
+        try{
+            Token token = service.getToken(clientId);
+            JSONObject responseBody = new JSONObject(token.toStringJSON());
+            return ResponseEntity.ok(responseBody.toString());
+        }catch (InvalidClientIdException e){
+            JSONObject responseBody = new JSONObject()
+                    .put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody.toString());
+        }
     }
 
     @GetMapping(value = "/endpoint", produces = MediaType.APPLICATION_JSON_VALUE)

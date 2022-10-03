@@ -4,6 +4,7 @@ import com.example.allegroapiclient.allegro_auth.AllegroAppAccessCodeController;
 import com.example.allegroapiclient.allegro_auth.AllegroAppRepository;
 import com.example.allegroapiclient.allegro_auth.AllegroAppService;
 import com.example.allegroapiclient.allegro_auth.AllegroAuthApiService;
+import com.example.allegroapiclient.dto.Token;
 import com.example.allegroapiclient.entities.AllegroApp;
 import com.example.allegroapiclient.exceptions.DeviceFlowTokenPending;
 import com.example.allegroapiclient.exceptions.InvalidClientIdException;
@@ -29,10 +30,10 @@ public class TokenGenerationTests {
     @Autowired
     AllegroAppAccessCodeController accessCodeController;
 
-    @BeforeAll
-    public void clearDatabase(){
-        repository.deleteAll();
-    }
+//    @BeforeAll
+//    public void clearDatabase(){
+//        repository.deleteAll();
+//    }
 
     private void addNewApp(){
         AllegroApp app = new AllegroApp(TestTokens.clientId, TestTokens.clientSecret, true, "username");
@@ -78,5 +79,19 @@ public class TokenGenerationTests {
         String clientSecret = "YBJd3XO2nnUwfvFdixdLddz4UCpRhOya4TiOcDXHYjEFNYUwZJLvzM39vWOZPIt4";
         JSONObject response = authApiService.requestForTokenForUserDeviceFlow(clientId, clientSecret, true, "aaa");
         System.out.println(response);
+    }
+
+    @Test
+    void isTokenValid(){
+        String clientId = "636ca94c10f44327b36b7f2d55635b72";
+        AllegroApp app = repository.findById(clientId).get();
+        System.out.println(allegroAppService.isTokenValid(app.getTokenForUser()));
+    }
+
+    @Test
+    void getUserToken() throws InvalidClientIdException {
+        String clientId = "636ca94c10f44327b36b7f2d55635b72";
+        Token token = allegroAppService.getToken(clientId);
+        System.out.println(token);
     }
 }

@@ -3,15 +3,18 @@ package com.example.allegroapiclient.allegro_auth;
 import com.example.allegroapiclient.allegro_auth.token_generation.ApplicationTokenGeneration;
 import com.example.allegroapiclient.allegro_auth.token_generation.AuthorizationCodeFlowTokenGeneration;
 import com.example.allegroapiclient.allegro_auth.token_generation.DeviceFlowTokenGeneration;
+import com.example.allegroapiclient.dto.Token;
 import com.example.allegroapiclient.entities.AllegroApp;
 import com.example.allegroapiclient.entities.FlowTypes;
 import com.example.allegroapiclient.exceptions.InvalidClientIdException;
+import com.example.allegroapiclient.utils.JwtUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -55,22 +58,21 @@ public class AllegroAppService {
         repository.save(app);
     }
 
-    public void generateTokenForApplication(String clientId) throws InvalidClientIdException{
+    public AllegroApp getAppByClientId(String clientId) throws InvalidClientIdException {
         Optional<AllegroApp> allegroAppOptional = repository.findById(clientId);
         if(allegroAppOptional.isEmpty())
             throw new InvalidClientIdException("Invalid client id");
-        AllegroApp app = allegroAppOptional.get();
+        return allegroAppOptional.get();
+    }
 
+    public void generateTokenForApplication(String clientId) throws InvalidClientIdException{
+        AllegroApp app = getAppByClientId(clientId);
         app = applicationTokenGeneration.generate(app);
         repository.save(app);
     }
 
     public String getAuthURL(String clientId) throws InvalidClientIdException{
-        Optional<AllegroApp> appOptional = repository.findById(clientId);
-        if(appOptional.isEmpty())
-            throw new InvalidClientIdException("Invalid client id");
-        AllegroApp app = appOptional.get();
-
+        AllegroApp app = getAppByClientId(clientId);
         if(app.getAuthFlowType().equals(FlowTypes.AUTHORIZATION_CODE))
             return getAccessCodeUrl(app);
         else
@@ -113,5 +115,35 @@ public class AllegroAppService {
                 generationParams.getInt("interval"));
 
         return generationParams.getString("verification_uri_complete");
+    }
+
+    public boolean isTokenValid(String token){
+        JSONObject tokenPayload = JwtUtils.getPayloadAsJSONObject(token);
+        Date expirationDate = new Date(tokenPayload.getLong("exp")*1000L);
+        return !(new Date()).after(expirationDate);
+    }
+
+    public AllegroApp refreshToken(AllegroApp app){
+        JSONObject newToken = authApiService.refreshToken(app);
+        String refreshToken = newToken.getString("refresh_token");
+        String accessToken = newToken.getString("access_token");
+        app.setRefreshToken(refreshToken);
+        app.setTokenForUser(accessToken);
+        return app;
+    }
+
+    public Token getToken(String clientId) throws InvalidClientIdException {
+        AllegroApp app = getAppByClientId(clientId);
+        if(!isTokenValid(app.getTokenForUser())){
+            app = refreshToken(app);
+            repository.save(app);
+        }
+
+        // Basic URLs for allegro api endpoints
+        final String hostAllegroApi = "https://api.allegro.pl";
+        final String hostAllegroSandboxApi = "https://api.allegro.pl.allegrosandbox.pl";
+
+        String hostUrl = app.isSandbox() ? hostAllegroSandboxApi : hostAllegroApi;
+        return new Token(app.getTokenForUser(), app.isSandbox(), hostUrl);
     }
 }
