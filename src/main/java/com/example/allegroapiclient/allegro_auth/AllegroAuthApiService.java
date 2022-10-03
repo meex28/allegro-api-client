@@ -1,5 +1,7 @@
 package com.example.allegroapiclient.allegro_auth;
 
+import com.example.allegroapiclient.entities.AllegroApp;
+import com.example.allegroapiclient.entities.FlowTypes;
 import com.example.allegroapiclient.exceptions.DeviceFlowTokenPending;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
@@ -142,4 +145,28 @@ public class AllegroAuthApiService {
 
         return new JSONObject(responseBody);
     }
+
+    public JSONObject refreshToken(AllegroApp app){
+        String url = getBasicUriComponentsBuilder(app.isSandbox())
+                .pathSegment(generateAccessTokenUrl)
+                .build().toUriString();
+
+        String responseBody = webClient.post()
+                .uri(url, uriBuilder -> {
+                    uriBuilder = uriBuilder.queryParam("grant_type", "refresh_token")
+                            .queryParam("refresh_token", app.getRefreshToken());
+                    if(app.getAuthFlowType().equals(FlowTypes.AUTHORIZATION_CODE))
+                        uriBuilder = uriBuilder.queryParam("redirect_uri",
+                                                            String.format(redirectUri, app.getEndpoint()));
+                    return uriBuilder.build();
+                })
+                .headers(headers -> headers.setBasicAuth(app.getClientId(), app.getClientSecret()))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        return new JSONObject(responseBody);
+    }
+
+
 }
