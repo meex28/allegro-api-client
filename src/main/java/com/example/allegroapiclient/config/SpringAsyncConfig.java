@@ -1,4 +1,4 @@
-package com.example.allegroapiclient.auth.config;
+package com.example.allegroapiclient.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
