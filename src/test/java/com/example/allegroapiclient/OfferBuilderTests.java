@@ -1,8 +1,11 @@
 package com.example.allegroapiclient;
 
 import com.example.allegroapiclient.api_client.utils.OfferBuilder;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Collections;
 
 @SpringBootTest
 public class OfferBuilderTests {
@@ -25,5 +28,15 @@ public class OfferBuilderTests {
                         "\"IMAGE\",\"url\":\"url\"}]},{\"items\":[{\"type\":\"TEXT\",\"content\":\"ccc\"}]}]}}\n");
     }
 
-
+    @Test
+    void productSet(){
+        JSONObject offer = OfferBuilder.get("test")
+                .addProduct("product", "1", "2", OfferBuilder.ProductIdType.GTIN,
+                        Collections.singletonList("image"), 2)
+                .addProductParameterRangeValue("2", "p1", "pn1", "1", "10")
+                .addProductParameterValues("2", "p2", "pn2", Collections.singletonList("3"))
+                .addProductParameterValuesIds("2", "p3", "pn3", Collections.singletonList("4"))
+                .build();
+        System.out.println(offer);
+    }
 }

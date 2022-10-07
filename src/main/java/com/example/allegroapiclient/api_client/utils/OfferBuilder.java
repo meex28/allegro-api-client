@@ -1,9 +1,11 @@
 package com.example.allegroapiclient.api_client.utils;
 
+import com.example.allegroapiclient.api_client.exceptions.NoSuchProductException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class OfferBuilder {
     private final JSONObject offer;
@@ -500,5 +502,91 @@ public class OfferBuilder {
     public OfferBuilder language(String language){
         offer.put("language", language);
         return this;
+    }
+
+    public enum ProductIdType{
+        GTIN, MPN
+    }
+
+    public OfferBuilder addProduct(String name, String categoryId, String productId,
+                                   ProductIdType productIdType, List<String> images, int quantity){
+        if(offer.isNull("productSet"))
+            offer.put("productSet", new JSONArray());
+
+        JSONObject product = new JSONObject()
+                .put("name", name)
+                .put("category", new JSONObject().put("id", categoryId))
+                .put("id", productId)
+                .put("idType", productIdType)
+                .put("images", new JSONArray(images));
+
+        JSONObject quantityJSON = new JSONObject()
+                .put("value", quantity);
+
+        offer.getJSONArray("productSet").put(
+                new JSONObject()
+                        .put("product", product)
+                        .put("quantity", quantityJSON)
+        );
+
+        return this;
+    }
+
+
+    private JSONObject getProductsFromProductsSet(String productId){
+        JSONArray products = offer.getJSONArray("productSet");
+        for(int i = 0; i<products.length(); i++){
+            JSONObject product = products.getJSONObject(i).getJSONObject("product");
+            if(product.getString("id").equals(productId))
+                return product;
+        }
+        //TODO: exception
+        return null;
+    }
+
+    private OfferBuilder addProductParameter(String productId, JSONObject parameter){
+        if(offer.isNull("productSet"))
+            offer.put("productSet", new JSONArray());
+
+        JSONObject product = getProductsFromProductsSet(productId);
+
+        if(product == null)
+            throw new NoSuchProductException();
+
+        if(product.isNull("parameters"))
+            product.put("parameters", new JSONArray());
+
+        product.getJSONArray("parameters").put(parameter);
+
+        return this;
+    }
+
+    public OfferBuilder addProductParameterRangeValue(String productId, String id, String name, String from, String to){
+        JSONObject parameter = new JSONObject()
+                .put("id", id)
+                .put("name", name)
+                .put("rangeValue", new JSONObject()
+                        .put("from", from)
+                        .put("to", to));
+
+        return addProductParameter(productId, parameter);
+    }
+
+    public OfferBuilder addProductParameterValues(String productId, String id, String name, List<String> values){
+        JSONObject parameter = new JSONObject()
+                .put("id", id)
+                .put("name", name)
+                .put("values", new JSONArray(values));
+
+        return addProductParameter(productId, parameter);
+    }
+
+    public OfferBuilder addProductParameterValuesIds(String productId, String id, String name, List<String> valuesIds){
+        JSONObject parameter = new JSONObject()
+                .put("id", id)
+                .put("name", name)
+                .put("valuesIds", new JSONArray(valuesIds));
+
+        return addProductParameter(productId, parameter);
     }
 }
