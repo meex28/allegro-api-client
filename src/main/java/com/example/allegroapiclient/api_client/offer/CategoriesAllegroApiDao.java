@@ -34,4 +34,37 @@ public class CategoriesAllegroApiDao {
 
         return new JSONObject(responseBody);
     }
+
+    public JSONObject getCategoryById(String id, Token token){
+        String uri = APIUtils.getBasicUriComponentsBuilder(token.isSandbox())
+                .pathSegment("/sale/categories")
+                .pathSegment(id)
+                .build().toUriString();
+
+        String responseBody = webClient.get()
+                .uri(uri)
+                .headers(headers -> headers.setBearerAuth(token.token()))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        return new JSONObject(responseBody);
+    }
+
+    public JSONObject getParametersSupportedByCategory(String id, Token token){
+        String uri = APIUtils.getBasicUriComponentsBuilder(token.isSandbox())
+                .pathSegment("/sale/categories")
+                .pathSegment(id)
+                .pathSegment("parameters")
+                .build().toUriString();
+
+        String responseBody = webClient.get()
+                .uri(uri)
+                .headers(headers -> headers.setBearerAuth(token.token()))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        return new JSONObject(responseBody);
+    }
 }

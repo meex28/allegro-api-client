@@ -6,6 +6,7 @@ import com.example.allegroapiclient.api_client.offer.ProductsAllegroApiDao;
 import com.example.allegroapiclient.auth.allegro_auth.AllegroAppService;
 import com.example.allegroapiclient.auth.dto.Token;
 import com.example.allegroapiclient.auth.exceptions.InvalidClientIdException;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,22 @@ public class AllegroApiTest {
         JSONObject categories = categoriesAllegroApiDao.getIdsOfAllegroCategories(
                 "954b95b6-43cf-4104-8354-dea4d9b10ddf", token);
         System.out.println(categories);
+    }
+
+    @Test
+    public void getCategory() throws InvalidClientIdException, JSONException {
+        Token token = authService.getToken(TestTokens.clientId);
+        String id = "15";
+        JSONObject category = categoriesAllegroApiDao.getCategoryById(id, token);
+        System.out.println(category.toString(2));
+    }
+
+    @Test
+    public void getCategoryParams() throws InvalidClientIdException, JSONException{
+        Token token = authService.getToken(TestTokens.clientId);
+        String id = "15";
+        JSONObject category = categoriesAllegroApiDao.getParametersSupportedByCategory(id, token);
+        System.out.println(category.toString(2));
     }
 
     @Test
