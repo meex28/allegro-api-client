@@ -5,7 +5,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class OfferBuilder {
     private final JSONObject offer;
@@ -275,10 +274,6 @@ public class OfferBuilder {
                 .put("valuesIds", new JSONArray(valuesIds));
         offer.getJSONArray("parameters").put(parameter);
         return this;
-    }
-
-    public enum Invoice{
-        VAT, VAT_MARGIN, WITHOUT_VAT, NO_INVOICE
     }
 
     public OfferBuilder payments(Invoice invoice){
