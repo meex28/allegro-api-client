@@ -25,16 +25,13 @@ public class OffersModificationAllegroApiDao {
                 .build();
     }
 
-    private String commandIdOrException(String body){
+    private String getCommandId(String body){
         JSONObject json = new JSONObject(body);
-
-        if(json.keySet().contains("errors"))
-            throw new BatchOfferModificationError(json.toString());
-        else
-            return json.getString("id");
+        return json.getString("id");
     }
 
-    private String batchModification(String uri, JSONObject modifications, List<String> offersIds, Token token){
+    private String batchModification(String uri, JSONObject modifications, List<String> offersIds,
+                                     boolean isPublication, Token token){
         List<JSONObject> offers = offersIds.stream()
                 .map(offer -> new JSONObject().put("id", offer))
                 .collect(Collectors.toList());
@@ -43,8 +40,9 @@ public class OffersModificationAllegroApiDao {
                         .put("offers", new JSONArray(offers))
                         .put("type", "CONTAINS_OFFERS"));
 
+        String modificationKey = isPublication ? "publication" : "modification";
         JSONObject body = new JSONObject()
-                .put("modification", modifications)
+                .put(modificationKey, modifications)
                 .put("offerCriteria", offerCriteria);
 
         String responseBody = webClient.put()
@@ -55,7 +53,7 @@ public class OffersModificationAllegroApiDao {
                 .bodyToMono(String.class)
                 .block();
 
-        return commandIdOrException(responseBody);
+        return getCommandId(responseBody);
     }
 
     public String modifyBuyNowPrice(String commandId, String offerId, String amount, String currency, Token token){
@@ -80,7 +78,7 @@ public class OffersModificationAllegroApiDao {
                 .bodyToMono(String.class)
                 .block();
 
-        return commandIdOrException(responseBody);
+        return getCommandId(responseBody);
     }
 
     public String modifyOffers(String commandId, JSONObject modifications, List<String> offersIds, Token token){
@@ -89,7 +87,7 @@ public class OffersModificationAllegroApiDao {
                 .pathSegment(commandId)
                 .build().toUriString();
 
-        return batchModification(uri, modifications, offersIds, token);
+        return batchModification(uri, modifications, offersIds, false, token);
     }
 
     // Methods to change offers price
@@ -99,11 +97,11 @@ public class OffersModificationAllegroApiDao {
 
     private String modifyOffersPrice(String commandId, JSONObject modifications, List<String> offersIds, Token token){
         String uri = APIUtils.getBasicUriComponentsBuilder(token.isSandbox())
-                .pathSegment("/sale/offer-modification-commands")
+                .pathSegment("/sale/offer-price-change-commands")
                 .pathSegment(commandId)
                 .build().toUriString();
 
-        return batchModification(uri, modifications, offersIds, token);
+        return batchModification(uri, modifications, offersIds, false, token);
     }
 
     public String modifyOffersFixedPrice(String commandId, String amount, String currency, List<String> offersIds,
@@ -121,7 +119,7 @@ public class OffersModificationAllegroApiDao {
                                       Token token){
         JSONObject modification = new JSONObject()
                 .put("type", OfferPriceModificationTypes.INCREASE_PRICE)
-                .put("price", new JSONObject()
+                .put("value", new JSONObject()
                         .put("amount", amount)
                         .put("currency", currency));
 
@@ -132,7 +130,7 @@ public class OffersModificationAllegroApiDao {
                                       Token token){
         JSONObject modification = new JSONObject()
                 .put("type", OfferPriceModificationTypes.DECREASE_PRICE)
-                .put("price", new JSONObject()
+                .put("value", new JSONObject()
                         .put("amount", amount)
                         .put("currency", currency));
 
@@ -169,7 +167,7 @@ public class OffersModificationAllegroApiDao {
                 .pathSegment(commandId)
                 .build().toUriString();
 
-        return batchModification(uri, modifications, offersIds, token);
+        return batchModification(uri, modifications, offersIds, false, token);
     }
 
     public String modifyOffersFixedQuantity(String commandId, String value, List<String> offersIds, Token token){
@@ -186,6 +184,32 @@ public class OffersModificationAllegroApiDao {
                 .put("value", value);
 
         return modifyOffersQuantity(commandId, modification, offersIds, token);
+    }
+
+    // Methods working with publication status modifying
+    private enum PublicationModifierStatus{
+        ACTIVATE, END
+    }
+
+    public String modifyOffersPublicationStatus(String commandId, PublicationModifierStatus action, String scheduledFor,
+                                                 List<String> offersIds, Token token){
+        String uri = APIUtils.getBasicUriComponentsBuilder(token.isSandbox())
+                .pathSegment("/sale/offer-publication-commands")
+                .pathSegment(commandId)
+                .build().toUriString();
+
+        JSONObject publication = new JSONObject()
+                .put("action", action);
+
+        if(scheduledFor != null)
+            publication.put("scheduledFor", scheduledFor);
+
+        return batchModification(uri, publication, offersIds, true, token);
+    }
+
+    public String modifyOffersPublicationStatus(String commandId, PublicationModifierStatus action,
+                                                List<String> offersIds, Token token){
+        return modifyOffersPublicationStatus(commandId, action, null, offersIds, token);
     }
 
     // Methods working with command summaries and reports
