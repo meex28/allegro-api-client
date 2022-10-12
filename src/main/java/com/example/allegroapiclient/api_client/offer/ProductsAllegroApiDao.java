@@ -33,4 +33,20 @@ public class ProductsAllegroApiDao {
 
         return new JSONObject(responseBody);
     }
+
+    public JSONObject getAllDataOfParticularProduct(String productId, Token token){
+        String uri = APIUtils.getBasicUriComponentsBuilder(token.isSandbox())
+                .pathSegment("/sale/products")
+                .pathSegment(productId)
+                .build().toUriString();
+
+        String responseBody = webClient.get()
+                .uri(uri)
+                .headers(headers -> headers.setBearerAuth(token.token()))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        return new JSONObject(responseBody);
+    }
 }
