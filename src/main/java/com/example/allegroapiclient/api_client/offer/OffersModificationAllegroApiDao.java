@@ -1,6 +1,7 @@
 package com.example.allegroapiclient.api_client.offer;
 
 import com.example.allegroapiclient.api_client.WebClientStatusCodeHandler;
+import com.example.allegroapiclient.api_client.command_id_manager.CommandId;
 import com.example.allegroapiclient.api_client.exceptions.BatchOfferModificationError;
 import com.example.allegroapiclient.api_client.utils.APIUtils;
 import com.example.allegroapiclient.auth.dto.Token;
@@ -223,6 +224,25 @@ public class OffersModificationAllegroApiDao {
         return new JSONObject(responseBody);
     }
 
+    public JSONObject commandSummary(CommandId commandId, Token token){
+        String uri = APIUtils.getBasicUriComponentsBuilder(token.isSandbox())
+                .pathSegment("/sale")
+                .pathSegment(commandId.getType().url+"-commands")
+                .pathSegment(commandId.getUuid())
+                .build().toUriString();
+        return commandSummaryOrReport(uri, token.token());
+    }
+
+    public JSONObject commandReport(CommandId commandId, Token token){
+        String uri = APIUtils.getBasicUriComponentsBuilder(token.isSandbox())
+                .pathSegment("/sale")
+                .pathSegment(commandId.getType().url+"-commands")
+                .pathSegment(commandId.getUuid())
+                .pathSegment("/tasks")
+                .build().toUriString();
+        return commandSummaryOrReport(uri, token.token());
+    }
+
     public JSONObject modificationCommandSummary(String commandId, Token token){
         String uri = APIUtils.getBasicUriComponentsBuilder(token.isSandbox())
                 .pathSegment("/sale/offer-modification-commands")
@@ -247,6 +267,14 @@ public class OffersModificationAllegroApiDao {
                 .pathSegment(commandId)
                 .build().toUriString();
 
+        return commandSummaryOrReport(uri, token.token());
+    }
+
+    public JSONObject publishCommandSummary(String commandId, Token token){
+        String uri = APIUtils.getBasicUriComponentsBuilder(token.isSandbox())
+                .pathSegment("/sale/offer-publication-commands")
+                .pathSegment(commandId)
+                .build().toUriString();
         return commandSummaryOrReport(uri, token.token());
     }
 
@@ -277,6 +305,15 @@ public class OffersModificationAllegroApiDao {
                 .pathSegment("/tasks")
                 .build().toUriString();
 
+        return commandSummaryOrReport(uri, token.token());
+    }
+
+    public JSONObject publishCommandDetailedReport(String commandId, Token token){
+        String uri = APIUtils.getBasicUriComponentsBuilder(token.isSandbox())
+                .pathSegment("/sale/offer-publication-commands")
+                .pathSegment(commandId)
+                .pathSegment("/tasks")
+                .build().toUriString();
         return commandSummaryOrReport(uri, token.token());
     }
 }

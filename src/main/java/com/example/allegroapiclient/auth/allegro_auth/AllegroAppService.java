@@ -144,6 +144,6 @@ public class AllegroAppService {
         final String hostAllegroSandboxApi = "https://api.allegro.pl.allegrosandbox.pl";
 
         String hostUrl = app.isSandbox() ? hostAllegroSandboxApi : hostAllegroApi;
-        return new Token(app.getTokenForUser(), app.isSandbox(), hostUrl);
+        return new Token(app.getTokenForUser(), app.isSandbox(), hostUrl, app.getUsername());
     }
 }

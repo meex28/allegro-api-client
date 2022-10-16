@@ -42,4 +42,6 @@ public class BatchOfferModificationApiTest {
         String commandIdReturn = offersModificationAllegroApiDao.modifyOffers(commandId, modifications, ids, token);
         assert commandId.equals(commandIdReturn);
     }
+
+
 }

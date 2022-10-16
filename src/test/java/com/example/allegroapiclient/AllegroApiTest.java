@@ -51,10 +51,18 @@ public class AllegroApiTest {
     }
 
     @Test
-    public void getProduct() throws InvalidClientIdException{
+    public void getProduct() throws InvalidClientIdException, JSONException {
         Token token = authService.getToken(TestTokens.clientId);
-        JSONObject product = productsAllegroApiDao.searchProduct("5906312705198", token);
-        System.out.println(product);
+        JSONObject product = productsAllegroApiDao.searchProduct("7341920754004", token);
+        System.out.println(product.toString(2));
+    }
+
+    @Test
+    public void getProductDetails() throws InvalidClientIdException, JSONException{
+        Token token = authService.getToken(TestTokens.clientId);
+        String id = "decf8589-56ea-498b-852c-8f9071c567ff";
+        JSONObject product = productsAllegroApiDao.getAllDataOfParticularProduct(id, token);
+        System.out.println(product.toString(2));
     }
 
     @Test
