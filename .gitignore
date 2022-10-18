@@ -3,7 +3,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-/src/test/java/com/example/allegroapiclient/TestTokens.java
+#/src/test/java/com/example/allegroapiclient/TestTokens.java
 
 ### STS ###
 .apt_generated
