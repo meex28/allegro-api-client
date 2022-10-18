@@ -5,7 +5,6 @@ import com.example.allegroapiclient.api_client.utils.APIUtils;
 import com.example.allegroapiclient.auth.dto.Token;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
