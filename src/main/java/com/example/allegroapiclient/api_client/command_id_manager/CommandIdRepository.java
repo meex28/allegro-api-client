@@ -25,8 +25,8 @@ public interface CommandIdRepository extends CrudRepository<CommandId, String> {
     @Override
     <S extends CommandId> Iterable<S> saveAll(Iterable<S> entities);
 
-    @Query("SELECT * FROM COMMAND_ID WHERE STATUS='NEW'")
-    List<CommandId> findIdsWithNewStatus();
+    @Query("SELECT * FROM COMMAND_ID WHERE (STATUS='CREATED' OR STATUS='NEW') AND USERNAME=:username")
+    List<CommandId> findNotFinishedRequests(String username);
 
     @Override
     Iterable<CommandId> findAllById(Iterable<String> strings);
