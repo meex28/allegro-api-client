@@ -19,8 +19,8 @@ public class ApplicationTokenGeneration {
     }
 
     // get AllegroApp, generate Token for Application and update given app.
-    public AllegroApp generate(AllegroApp app) throws InvalidClientIdException {
-        logger.info("Generating application token for app: %s");
+    public AllegroApp generate(AllegroApp app) {
+        logger.info(String.format("Generating application token for app: %s", app));
         String token = authApiService.generateTokenForApplication(
                 app.getClientId(),
                 app.getClientSecret(),
