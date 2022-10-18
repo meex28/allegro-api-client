@@ -17,5 +17,4 @@ public class AllegroAppAccessCodeController {
     public void passCode(@RequestParam String code, @PathVariable String endpoint){
         service.generateTokenForUserAuthCodeFlow(code, endpoint);
     }
-
 }

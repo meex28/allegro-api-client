@@ -96,7 +96,8 @@ public class AllegroAppService {
     public void generateTokenForUserAuthCodeFlow(String code, String endpoint){
         Optional<AllegroApp> allegroAppOptional = repository.findByEndpoint(endpoint);
         if(allegroAppOptional.isEmpty()){
-            logger.error(String.format("Invalid endpoint=%s to generate token.", endpoint));
+            logger.error(String.format("Catch authorization code on invalid endpoint=%s " +
+                    "to generate token for used (code flow).", endpoint));
             return;
         }
         AllegroApp allegroApp = allegroAppOptional.get();
@@ -124,6 +125,7 @@ public class AllegroAppService {
     }
 
     public AllegroApp refreshToken(AllegroApp app){
+        logger.info(String.format("Refreshing token for user in app: %s", app));
         JSONObject newToken = authApiService.refreshToken(app);
         String refreshToken = newToken.getString("refresh_token");
         String accessToken = newToken.getString("access_token");

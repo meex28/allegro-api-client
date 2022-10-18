@@ -26,12 +26,15 @@ public class DeviceFlowTokenGeneration {
     }
 
     public JSONObject initializeTokenGeneration(AllegroApp app){
+        logger.info(String.format("Initialize token generation (device flow) for app: %s", app));
         return authApiService.prepareGenerationTokenForUserWithDeviceFlow(
                 app.getClientId(), app.getClientSecret(), app.isSandbox());
     }
 
     @Async
     public void generate(AllegroApp app, String deviceCode, int interval){
+        logger.info(String.format(
+                "Started requests to get token for user (device flow). Device code: %s. App: %s", deviceCode, app));
         boolean isAuthPending = true;
 
         while (isAuthPending){
@@ -41,6 +44,7 @@ public class DeviceFlowTokenGeneration {
                         app.isSandbox(),
                         deviceCode);
 
+                logger.info(String.format("Successfully generated token for user (device flow) for app: %s", app));
                 String tokenForUser = response.getString("access_token");
                 String refreshToken = response.getString("refresh_token");
                 app.setTokenForUser(tokenForUser);
@@ -49,7 +53,7 @@ public class DeviceFlowTokenGeneration {
                 isAuthPending = false;
             }catch (DeviceFlowTokenPending e){
                 String error = e.getError();
-                logger.info("Token pending: "+error);
+                logger.info(String.format("Token pending for app: %s. Response: %s", app, error));
                 try{
                     TimeUnit.SECONDS.sleep(interval);
                 } catch (InterruptedException ignored) {}
