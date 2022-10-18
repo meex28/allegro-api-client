@@ -2,7 +2,6 @@ package com.example.allegroapiclient;
 
 import com.example.allegroapiclient.api_client.command_id_manager.*;
 import com.example.allegroapiclient.api_client.offer.OffersModificationAllegroApiDao;
-import com.example.allegroapiclient.api_client.utils.BasicUtils;
 import com.example.allegroapiclient.api_client.utils.OfferModificationBuilder;
 import com.example.allegroapiclient.auth.allegro_auth.AllegroAppService;
 import com.example.allegroapiclient.auth.dto.Token;
