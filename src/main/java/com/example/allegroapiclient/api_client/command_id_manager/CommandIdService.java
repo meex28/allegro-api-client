@@ -1,6 +1,7 @@
 package com.example.allegroapiclient.api_client.command_id_manager;
 
 import com.example.allegroapiclient.api_client.offer.OffersModificationAllegroApiDao;
+import com.example.allegroapiclient.api_client.utils.BasicUtils;
 import com.example.allegroapiclient.auth.dto.Token;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,49 +43,55 @@ public class CommandIdService {
     private boolean isUnique(String uuid){return !repository.existsById(uuid);}
 
     public List<String> updateStatuses(String username, Token token){
-        List<CommandId> updatedIds = getProcessingIds()
-                .stream()
-                .filter(id -> id.getUsername().equals(username))
-                .filter(id -> !id.getStatus().equals(Status.FAIL)
-                        && !id.getStatus().equals(Status.SUCCESS)
-                        && !id.getStatus().equals(Status.PARTLY_SUCCESS))
-                .map(id -> new CommandId[]{id, updateSingleId(id, token)})
-                .filter(ids -> !ids[0].getStatus().equals(ids[1].getStatus()))
-                .map(ids -> ids[1])
+        List<CommandId> updatedIds = getProcessingIds(username).stream()
+                .filter(id -> updateSingleId(id, token))
                 .collect(Collectors.toList());
 
         repository.saveAll(updatedIds);
         return updatedIds.stream().map(CommandId::getUuid).collect(Collectors.toList());
     }
 
-    private CommandId updateSingleId(CommandId id, Token token){
+    private boolean updateSingleId(CommandId id, Token token){
+        boolean isUpdated = false;
         try{
             JSONObject taskCount = modificationsDao.commandSummary(id, token).getJSONObject("taskCount");
             int total = taskCount.getInt("total");
             int failed = taskCount.getInt("failed");
             int success = taskCount.getInt("success");
 
-            if(total == success)
+            if(total == success){
                 id.setStatus(Status.SUCCESS);
-            else if(total == failed)
+                isUpdated = true;
+            }
+            else if(total == failed){
                 id.setStatus(Status.FAIL);
-            else if(total == failed + success)
+                isUpdated = true;
+            }
+            else if(total == failed + success){
                 id.setStatus(Status.PARTLY_SUCCESS);
-            else if(total > failed + success)
+                isUpdated = true;
+            }
+            else if(total > failed + success){
                 id.setStatus(Status.NEW);
+                isUpdated = true;
+            }
         }catch (HttpClientErrorException exception){
             if(exception.getStatusCode().equals(HttpStatus.NOT_FOUND)){
-                // if uuid is not found on Allegro DB then delete from our DB
+                // if uuid is not found on Allegro DB and older than 12h
+                // then delete from our DB
                 if(!id.getStatus().equals(Status.CREATED))
+                    repository.deleteById(id.getUuid());
+                else if(id.getStatus().equals(Status.CREATED)
+                        && id.getCreated().before(BasicUtils.getCurrentTimeSubHours(12)))
                     repository.deleteById(id.getUuid());
             }else{
                 //TODO: save log
             }
         }
-        return id;
+        return isUpdated;
     }
 
-    private List<CommandId> getProcessingIds(){
-        return repository.findIdsWithNewStatus();
+    private List<CommandId> getProcessingIds(String username){
+        return repository.findNotFinishedRequests(username);
     }
 }
