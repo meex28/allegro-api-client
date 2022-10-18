@@ -4,6 +4,8 @@ import com.example.allegroapiclient.api_client.offer.OffersModificationAllegroAp
 import com.example.allegroapiclient.api_client.utils.BasicUtils;
 import com.example.allegroapiclient.auth.dto.Token;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class CommandIdService {
     private final CommandIdRepository repository;
     private final OffersModificationAllegroApiDao modificationsDao;
+    private final Logger logger = LoggerFactory.getLogger(CommandIdService.class);
 
     @Autowired
     public CommandIdService(CommandIdRepository repository, OffersModificationAllegroApiDao modificationsDao) {
@@ -43,6 +46,7 @@ public class CommandIdService {
     private boolean isUnique(String uuid){return !repository.existsById(uuid);}
 
     public List<String> updateStatuses(String username, Token token){
+        logger.info(String.format("Update asynchronous requests statuses with command id. For user: %s", username));
         List<CommandId> updatedIds = getProcessingIds(username).stream()
                 .filter(id -> updateSingleId(id, token))
                 .collect(Collectors.toList());
