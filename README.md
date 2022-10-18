@@ -1,18 +1,18 @@
-#Allegro API Client
+# Allegro API Client
 Project is core client to work with Allegro API. 
 It includes authorization (based on OAuth2) and communication with offer management endpoints.
 You can fork this repo and develop it with your needs.
 To work with use Allegro API documentation (https://developer.allegro.pl/documentation).
-##Features
+## Features
 * Authorization using either Authorization Code Flow or Device Flow. 
 * Basic offer management Allegro API methods, like creating offers, modifying, searching products.
 * Batch offer modifications with statuses of asynchronous requests.
 * OfferBuilder and OfferModificationBuilder classes to easily build offer JSON.
-##Technologies
+## Technologies
 * Java 17
 * Spring Boot 2.7.3 (+ Spring Data, Spring Webflux)
 
-##Code Examples
+## Code Examples
 Creating offer draft with basic description (wrapped in service to use beans):
 
     @Service
