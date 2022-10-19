@@ -1,34 +1,30 @@
 package com.example.allegroapiclient.api_client.offer;
 
-import com.example.allegroapiclient.api_client.WebClientStatusCodeHandler;
+import com.example.allegroapiclient.api_client.AllegroApiDao;
 import com.example.allegroapiclient.api_client.command_id_manager.CommandId;
-import com.example.allegroapiclient.api_client.exceptions.BatchOfferModificationError;
 import com.example.allegroapiclient.api_client.utils.APIUtils;
 import com.example.allegroapiclient.auth.dto.Token;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 // service used to make offer modifications that required commandId
 @Service
-public class OffersModificationAllegroApiDao {
-    private final WebClient webClient;
-
+public class OffersModificationAllegroApiDao extends AllegroApiDao {
     public OffersModificationAllegroApiDao() {
-        this.webClient = WebClient.builder()
-                .defaultHeaders(APIUtils::setBasicContentType)
-                .filter(WebClientStatusCodeHandler.errorResponseFilter)
-                .build();
+        super();
     }
 
     private String getCommandId(String body){
         JSONObject json = new JSONObject(body);
         return json.getString("id");
+    }
+
+    private String getCommandId(JSONObject body){
+        return body.getString("id");
     }
 
     private String batchModification(String uri, JSONObject modifications, List<String> offersIds,
@@ -45,16 +41,8 @@ public class OffersModificationAllegroApiDao {
         JSONObject body = new JSONObject()
                 .put(modificationKey, modifications)
                 .put("offerCriteria", offerCriteria);
-
-        String responseBody = webClient.put()
-                .uri(uri)
-                .headers(headers -> headers.setBearerAuth(token.token()))
-                .body(BodyInserters.fromValue(body.toString()))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-
-        return getCommandId(responseBody);
+        JSONObject response = post(uri, body.toString(), token.token());
+        return getCommandId(response);
     }
 
     public String modifyBuyNowPrice(String commandId, String offerId, String amount, String currency, Token token){
@@ -71,15 +59,8 @@ public class OffersModificationAllegroApiDao {
                 .pathSegment(commandId)
                 .build().toUriString();
 
-        String responseBody = webClient.put()
-                .uri(uri)
-                .headers(headers -> headers.setBearerAuth(token.token()))
-                .body(BodyInserters.fromValue(body.toString()))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-
-        return getCommandId(responseBody);
+        JSONObject response = post(uri, body.toString(), token.token());
+        return getCommandId(response);
     }
 
     public String modifyOffers(String commandId, JSONObject modifications, List<String> offersIds, Token token){
@@ -215,13 +196,7 @@ public class OffersModificationAllegroApiDao {
 
     // Methods working with command summaries and reports
     private JSONObject commandSummaryOrReport(String uri, String token){
-        String responseBody = webClient.get()
-                .uri(uri)
-                .headers(headers -> headers.setBearerAuth(token))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-        return new JSONObject(responseBody);
+        return get(uri, token);
     }
 
     public JSONObject commandSummary(CommandId commandId, Token token){

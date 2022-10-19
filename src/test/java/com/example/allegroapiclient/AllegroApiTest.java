@@ -3,6 +3,7 @@ package com.example.allegroapiclient;
 import com.example.allegroapiclient.api_client.offer.CategoriesAllegroApiDao;
 import com.example.allegroapiclient.api_client.offer.ImagesAllegroApiDao;
 import com.example.allegroapiclient.api_client.offer.ProductsAllegroApiDao;
+import com.example.allegroapiclient.api_client.sale_settings.DeliveryAllegroApiDao;
 import com.example.allegroapiclient.auth.allegro_auth.AllegroAppService;
 import com.example.allegroapiclient.auth.dto.Token;
 import com.example.allegroapiclient.auth.exceptions.InvalidClientIdException;
@@ -11,6 +12,7 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.client.HttpClientErrorException;
 
 @SpringBootTest
 public class AllegroApiTest {

@@ -5,6 +5,7 @@ import com.example.allegroapiclient.api_client.utils.OfferBuilder;
 import com.example.allegroapiclient.auth.allegro_auth.AllegroAppService;
 import com.example.allegroapiclient.auth.dto.Token;
 import com.example.allegroapiclient.auth.exceptions.InvalidClientIdException;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +35,10 @@ public class AllegroApiOffersTest {
     }
 
     @Test
-    public void deleteOfferDraft() throws InvalidClientIdException{
+    public void deleteOfferDraft() throws InvalidClientIdException {
         Token token = authService.getToken(TestTokens.clientId);
-        JSONObject offer = OfferBuilder.get("offer-to-delete").build();
-//        String id = offer.getString("id");
+        String id = "7695163573";
+        offersAllegroApiDao.deleteDraftOffer(id, token);
     }
 
     @Test
@@ -49,7 +50,6 @@ public class AllegroApiOffersTest {
                 .category("319171")
                 .build();
         offersAllegroApiDao.editFullOffer(id, offer, token);
-
     }
 
     @Test

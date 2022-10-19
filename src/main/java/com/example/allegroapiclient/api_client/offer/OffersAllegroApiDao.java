@@ -1,22 +1,15 @@
 package com.example.allegroapiclient.api_client.offer;
 
-import com.example.allegroapiclient.api_client.WebClientStatusCodeHandler;
+import com.example.allegroapiclient.api_client.AllegroApiDao;
 import com.example.allegroapiclient.api_client.utils.APIUtils;
 import com.example.allegroapiclient.auth.dto.Token;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
-public class OffersAllegroApiDao {
-    private final WebClient webClient;
-
+public class OffersAllegroApiDao extends AllegroApiDao {
     public OffersAllegroApiDao() {
-        this.webClient = WebClient.builder()
-                .defaultHeaders(APIUtils::setBasicContentType)
-                .filter(WebClientStatusCodeHandler.errorResponseFilter)
-                .build();
+        super();
     }
 
     public JSONObject getAllFieldsOfTheParticularOffer(String offerId, Token token){
@@ -25,13 +18,7 @@ public class OffersAllegroApiDao {
                 .pathSegment(offerId)
                 .build().toUriString();
 
-        String responseBody = webClient.get()
-                .uri(uri)
-                .headers(headers -> headers.setBearerAuth(token.token()))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-        return new JSONObject(responseBody);
+        return get(uri, token.token());
     }
 
     public JSONObject createOfferDraft(JSONObject offer, Token token){
@@ -39,14 +26,7 @@ public class OffersAllegroApiDao {
                 .pathSegment("/sale/offers")
                 .build().toUriString();
 
-        String responseBody = webClient.post()
-                .uri(uri)
-                .headers(headers -> headers.setBearerAuth(token.token()))
-                .body(BodyInserters.fromValue(offer.toString()))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-        return new JSONObject(responseBody);
+        return post(uri, offer.toString(), token.token());
     }
 
     public JSONObject createOfferBasedOnProduct(JSONObject offer, Token token){
@@ -54,14 +34,7 @@ public class OffersAllegroApiDao {
                 .pathSegment("/sale/product-offers")
                 .build().toUriString();
 
-        String responseBody = webClient.post()
-                .uri(uri)
-                .headers(headers -> headers.setBearerAuth(token.token()))
-                .body(BodyInserters.fromValue(offer.toString()))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-        return new JSONObject(responseBody);
+        return post(uri, offer.toString(), token.token());
     }
 
     public JSONObject completeDraft(String offerId, JSONObject offer, Token token){
@@ -74,14 +47,7 @@ public class OffersAllegroApiDao {
                 .pathSegment(offerId)
                 .build().toUriString();
 
-        String responseBody = webClient.put()
-                .uri(uri)
-                .headers(headers -> headers.setBearerAuth(token.token()))
-                .body(BodyInserters.fromValue(offer.toString()))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-        return new JSONObject(responseBody);
+        return put(uri, offerId.toString(), token.token());
     }
 
     public JSONObject editOffer(String offerId, JSONObject offer, Token token){
@@ -90,14 +56,7 @@ public class OffersAllegroApiDao {
                 .pathSegment(offerId)
                 .build().toUriString();
 
-        String responseBody = webClient.patch()
-                .uri(uri)
-                .headers(headers -> headers.setBearerAuth(token.token()))
-                .body(BodyInserters.fromValue(offer.toString()))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-        return new JSONObject(responseBody);
+        return patch(uri, offer.toString(), token.token());
     }
 
     public void deleteDraftOffer(String offerId, Token token){
